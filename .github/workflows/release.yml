@@ -1,0 +1,21 @@
+name: Release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build universal app
+        run: ./build.sh
+      - name: Publish first release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view v0.1.0 >/dev/null 2>&1; then
+            gh release create v0.1.0 build/RAMLOOP.zip --target "$GITHUB_SHA" --title "RAMLOOP v0.1.0" --prerelease --notes "First public preview. macOS 13+, Apple Silicon and Intel. Ad-hoc signed; not notarized. See README for installation."
+          fi
